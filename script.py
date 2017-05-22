@@ -118,6 +118,7 @@ def run(filename):
         tmp = []
         screen = new_screen()
         step = 0.1
+        knob_value = 1
         for command in commands:
             c = command[0]
             args = command[1:]
@@ -142,32 +143,42 @@ def run(filename):
                 draw_polygons(tmp, screen, color)
                 tmp = []
             elif c == 'move':
-                tmp = make_translate(args[0], args[1], args[2])
                 if isAnim and args[3] != None:
                     knob_name = args[3]
-                    scalar_mult(tmp, knobs[frame][knob_name])
+                    knob_value = knobs[frame][knob_name]
+
+                tmp = make_translate(args[0] * knob_value,
+                                     args[1] * knob_value,
+                                     args[2] * knob_value)
+                
                 matrix_mult(stack[-1], tmp)
                 stack[-1] = [x[:] for x in tmp]
                 tmp = []
             elif c == 'scale':
-                tmp = make_scale(args[0], args[1], args[2])
                 if isAnim and args[3] != None:
                     knob_name = args[3]
-                    scalar_mult(tmp, knobs[frame][knob_name])
+                    knob_value = knobs[frame][knob_name]
+
+                tmp = make_scale(args[0] * knob_value,
+                                 args[1] * knob_value,
+                                 args[2] * knob_value)
+         
                 matrix_mult(stack[-1], tmp)
                 stack[-1] = [x[:] for x in tmp]
                 tmp = []
             elif c == 'rotate':
-                theta = args[1] * (math.pi/180)
+                if isAnim and args[2] != None:
+                    knob_name = args[2]
+                    knob_value = knobs[frame][knob_name]
+                
+                theta = args[1] * (math.pi/180) * knob_value
                 if args[0] == 'x':
                     tmp = make_rotX(theta)
                 elif args[0] == 'y':
                     tmp = make_rotY(theta)
                 else:
                     tmp = make_rotZ(theta)
-                if isAnim and args[2] != None:
-                    knob_name = args[2]
-                    scalar_mult(tmp, knobs[frame][knob_name])
+                    
                 matrix_mult( stack[-1], tmp )
                 stack[-1] = [ x[:] for x in tmp]
                 tmp = []
