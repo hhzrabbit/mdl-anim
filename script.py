@@ -24,6 +24,8 @@ from draw import *
 basename = "image"
 
 def first_pass( commands ):
+    global basename
+
     num_frames = 1
     
     includes_frames = False
@@ -77,6 +79,11 @@ def second_pass( commands, num_frames ):
             frame_end = cmd[3] #inclusive
             value_start = cmd[4]
             value_end = cmd[5]
+
+            if value_start < 0 or value_end > num_frames:
+                print "invalid vary range"
+                exit(0)
+            
             incr = 1.0 * (value_end - value_start) / (frame_end - frame_start + 1)
             value = value_start
             for i in range(frame_start, frame_end + 1):
@@ -103,17 +110,15 @@ def run(filename):
     
     if isAnim:
         knobs = second_pass(commands, frames)
-
+    
     for frame in range(frames):
-#        print frame
         tmp = new_matrix()
         ident(tmp)
         stack = [ [x[:] for x in tmp] ]
-        screen = new_screen()
         tmp = []
+        screen = new_screen()
         step = 0.1
         for command in commands:
-#            print command
             c = command[0]
             args = command[1:]
 
@@ -138,7 +143,7 @@ def run(filename):
                 tmp = []
             elif c == 'move':
                 tmp = make_translate(args[0], args[1], args[2])
-                if args[3] != None:
+                if isAnim and args[3] != None:
                     knob_name = args[3]
                     scalar_mult(tmp, knobs[frame][knob_name])
                 matrix_mult(stack[-1], tmp)
@@ -146,7 +151,7 @@ def run(filename):
                 tmp = []
             elif c == 'scale':
                 tmp = make_scale(args[0], args[1], args[2])
-                if args[3] != None:
+                if isAnim and args[3] != None:
                     knob_name = args[3]
                     scalar_mult(tmp, knobs[frame][knob_name])
                 matrix_mult(stack[-1], tmp)
@@ -160,7 +165,7 @@ def run(filename):
                     tmp = make_rotY(theta)
                 else:
                     tmp = make_rotZ(theta)
-                if args[2] != None:
+                if isAnim and args[2] != None:
                     knob_name = args[2]
                     scalar_mult(tmp, knobs[frame][knob_name])
                 matrix_mult( stack[-1], tmp )
@@ -176,4 +181,4 @@ def run(filename):
                 save_extension(screen, args[0])
                 
             if isAnim:
-                save_extension(screen, "anim/%s0%s" % (basename, frame))    
+                save_extension(screen, "anim/%s00%s" % (basename, frame))    
