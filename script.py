@@ -192,4 +192,5 @@ def run(filename):
                 save_extension(screen, args[0])
                 
             if isAnim:
-                save_extension(screen, "anim/%s00%s" % (basename, frame))    
+                "%03d"%12
+                save_extension(screen, "anim/%s%03d" % (basename, frame))    
